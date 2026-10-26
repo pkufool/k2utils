@@ -1,17 +1,27 @@
 # k2utils
 
-Utilities for installing packages from the [k2](https://github.com/k2-fsa/k2)
+Utilities for installing packages from the [k2](https://github.com/k2-fsa/)
 ecosystem from their official pre-built wheel pages.
 
 ## Install
 
+Install from PyPI:
+
 ```bash
+pip install k2utils
+```
+
+Or install from a local source checkout:
+
+```bash
+cd k2utils
 pip install .
 ```
 
-Or from a source checkout for development:
+For development, use an editable install together with the test dependencies:
 
 ```bash
+cd k2utils
 pip install -e ".[dev]"
 ```
 
