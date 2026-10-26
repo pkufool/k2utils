@@ -20,6 +20,7 @@ import sys
 from typing import Optional, Sequence
 
 from k2utils.commands.install import k2 as k2_installer
+from k2utils.commands.install import kaldifeat as kaldifeat_installer
 from k2utils.commands.install.common import InstallError
 
 
@@ -42,20 +43,41 @@ def build_parser() -> argparse.ArgumentParser:
             "it with this Python's pip, and verify the result."
         ),
     )
-    k2_parser.add_argument(
+    _add_install_options(k2_parser)
+    k2_parser.set_defaults(handler=_run_install, installer=k2_installer.install_k2)
+
+    kaldifeat_parser = install_subparsers.add_parser(
+        "kaldifeat",
+        help="Install kaldifeat from the official pre-built wheel index.",
+        description=(
+            "Detect the current Python/PyTorch environment, select an exactly "
+            "compatible kaldifeat wheel from the official CPU or CUDA index, "
+            "install it with this Python's pip, and verify the result."
+        ),
+    )
+    _add_install_options(kaldifeat_parser)
+    kaldifeat_parser.set_defaults(
+        handler=_run_install, installer=kaldifeat_installer.install_kaldifeat
+    )
+
+    return parser
+
+
+def _add_install_options(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument(
         "--dry-run",
         action="store_true",
         help="Show the selected wheel and pip command without installing.",
     )
-    k2_parser.add_argument(
+    parser.add_argument(
         "--torch-version",
         metavar="VERSION",
         help=(
-            "Torch version the k2 wheel must match, e.g. 2.8.0. "
+            "Torch version the wheel must match, e.g. 2.8.0. "
             "Defaults to the installed torch version and must match it if given."
         ),
     )
-    k2_parser.add_argument(
+    parser.add_argument(
         "--cn",
         action="store_true",
         help=(
@@ -63,13 +85,10 @@ def build_parser() -> argparse.ArgumentParser:
             "who cannot reach Hugging Face."
         ),
     )
-    k2_parser.set_defaults(handler=_run_install_k2)
-
-    return parser
 
 
-def _run_install_k2(args: argparse.Namespace) -> int:
-    return k2_installer.install_k2(
+def _run_install(args: argparse.Namespace) -> int:
+    return args.installer(
         dry_run=args.dry_run,
         torch_version=args.torch_version,
         cn=args.cn,

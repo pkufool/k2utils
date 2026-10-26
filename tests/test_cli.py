@@ -28,7 +28,12 @@ from k2utils.commands.install.common import InstallError
 
 @pytest.mark.parametrize(
     "argv",
-    [["--help"], ["install", "--help"], ["install", "k2", "--help"]],
+    [
+        ["--help"],
+        ["install", "--help"],
+        ["install", "k2", "--help"],
+        ["install", "kaldifeat", "--help"],
+    ],
 )
 def test_help_exits_zero(argv):
     with pytest.raises(SystemExit) as excinfo:
@@ -43,7 +48,15 @@ def test_bad_usage_exits_two(argv):
     assert excinfo.value.code == 2
 
 
-def test_install_k2_routes_to_installer(monkeypatch):
+@pytest.mark.parametrize(
+    "installer_module, command, entry_name",
+    [
+        (cli.k2_installer, "k2", "install_k2"),
+        (cli.kaldifeat_installer, "kaldifeat", "install_kaldifeat"),
+    ],
+    ids=["k2", "kaldifeat"],
+)
+def test_install_routes_to_installer(monkeypatch, installer_module, command, entry_name):
     recorded = {}
 
     def fake_install(*, dry_run=False, torch_version=None, cn=False):
@@ -52,10 +65,10 @@ def test_install_k2_routes_to_installer(monkeypatch):
         recorded["cn"] = cn
         return 0
 
-    monkeypatch.setattr(cli.k2_installer, "install_k2", fake_install)
-    assert cli.main(["install", "k2", "--dry-run", "--torch-version", "2.8.0"]) == 0
+    monkeypatch.setattr(installer_module, entry_name, fake_install)
+    assert cli.main(["install", command, "--dry-run", "--torch-version", "2.8.0"]) == 0
     assert recorded == {"dry_run": True, "torch_version": "2.8.0", "cn": False}
-    assert cli.main(["install", "k2", "--cn"]) == 0
+    assert cli.main(["install", command, "--cn"]) == 0
     assert recorded["cn"] is True
 
 

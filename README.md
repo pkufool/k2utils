@@ -1,7 +1,9 @@
 # k2utils
 
 Utilities for installing packages from the [k2](https://github.com/k2-fsa/)
-ecosystem from their official pre-built wheel pages.
+ecosystem ([k2](https://k2-fsa.github.io/k2/),
+[kaldifeat](https://csukuangfj.github.io/kaldifeat/), ...) from their
+official pre-built wheel pages.
 
 ## Install
 
@@ -28,12 +30,13 @@ pip install -e ".[dev]"
 ## Usage
 
 ```bash
-k2utils install k2 [--dry-run] [--torch-version VERSION] [--cn]
+k2utils install k2        [--dry-run] [--torch-version VERSION] [--cn]
+k2utils install kaldifeat [--dry-run] [--torch-version VERSION] [--cn]
 ```
 
-`k2utils install k2` detects the running Python/PyTorch environment, selects an
-exactly compatible k2 wheel from the official index, installs it with the same
-Python's pip, and verifies that `import k2` works:
+`k2utils install <package>` detects the running Python/PyTorch environment,
+selects an exactly compatible wheel from the official index, installs it with
+the same Python's pip, and verifies that importing the package works:
 
 ```bash
 $ k2utils install k2
@@ -67,20 +70,26 @@ Options:
 
 The index pages are flat lists of pre-built wheels:
 
-- CPU (Linux, macOS, Windows): <https://k2-fsa.github.io/k2/cpu.html>
-- CUDA (Linux): <https://k2-fsa.github.io/k2/cuda.html>
-- CN mirrors: <https://k2-fsa.github.io/k2/cpu-cn.html> /
-  <https://k2-fsa.github.io/k2/cuda-cn.html> (selected with `--cn`)
+- k2:
+  - CPU (Linux, macOS, Windows): <https://k2-fsa.github.io/k2/cpu.html>
+  - CUDA (Linux): <https://k2-fsa.github.io/k2/cuda.html>
+  - CN mirrors: <https://k2-fsa.github.io/k2/cpu-cn.html> /
+    <https://k2-fsa.github.io/k2/cuda-cn.html> (selected with `--cn`)
+- kaldifeat:
+  - CPU (Linux, macOS, Windows): <https://csukuangfj.github.io/kaldifeat/cpu.html>
+  - CUDA (Linux): <https://csukuangfj.github.io/kaldifeat/cuda.html>
+  - CN mirrors: <https://csukuangfj.github.io/kaldifeat/cpu-cn.html> /
+    <https://csukuangfj.github.io/kaldifeat/cuda-cn.html> (selected with `--cn`)
 
 The CPU or CUDA page is chosen automatically from the installed PyTorch build
-(`torch.version.cuda`). PyTorch must already be installed — k2 wheels are
+(`torch.version.cuda`). PyTorch must already be installed — the wheels are
 built for an exact PyTorch version and backend, so k2utils never guesses one.
 
 ## Matching rules
 
 A wheel is installed only when **all** of the following match exactly:
 
-- k2 wheel's `torchX.Y.Z` marker equals the installed torch version;
+- wheel's `torchX.Y.Z` marker equals the installed torch version;
 - CPU/CUDA backend equals the torch build, and for CUDA the `cudaX.Y` marker
   equals `torch.version.cuda` (major.minor);
 - wheel Python/ABI/platform tags are supported by the running interpreter
@@ -88,8 +97,10 @@ A wheel is installed only when **all** of the following match exactly:
 
 There is **no fallback** to a wheel built for another torch version, CUDA
 version, backend, Python or platform. If nothing matches, the command fails
-and prints the environment it searched for. To build k2 from source, see the
-[k2 installation docs](https://k2-fsa.github.io/k2/installation/from_source.html).
+and prints the environment it searched for. To build from source, see the
+[k2](https://k2-fsa.github.io/k2/installation/from_source.html) or
+[kaldifeat](https://csukuangfj.github.io/kaldifeat/installation/from_source.html)
+installation docs.
 
 ROCm PyTorch builds are not supported yet and are rejected explicitly.
 
@@ -104,8 +115,8 @@ settings and its own configuration.
 venvs created by `uv venv` do not include pip. k2utils detects this and falls
 back to `uv pip install --python <current interpreter>` automatically.
 
-Install k2utils into the environment where you want k2 — e.g.
+Install k2utils into the environment where you want the packages — e.g.
 `uv pip install k2utils`, or `uv add k2utils` followed by
 `uv run k2utils install k2`. Do not run it via `uvx` or `uv tool install`:
-those put k2utils in its own isolated environment, and k2 would end up there
-instead of your project.
+those put k2utils in its own isolated environment, and the packages would end
+up there instead of your project.
